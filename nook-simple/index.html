@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nook — Small-space furniture, shipped fast</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Fraunces:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap">
+<style>
+:root {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --text: #1A1A1A;
+  --text-secondary: #6B6B6B;
+  --text-muted: #999;
+  --border: #E8E6E1;
+  --accent: #2D5A3D;
+  --accent-hover: #1E4029;
+  --accent-light: #E8F0EB;
+  --paypal: #FFC439;
+  --paypal-text: #003087;
+  --stripe: #635BFF;
+  --radius: 6px;
+  --radius-lg: 12px;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+ul { list-style: none; }
+
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem); }
+h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); }
+h3 { font-size: 1.15rem; font-family: var(--font-body); font-weight: 600; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+/* ===== Nav ===== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(250,250,248,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--accent); }
+.nav-links { display: flex; gap: 28px; }
+.nav-links a {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cart {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--text);
+  color: white;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.nav-cart:hover { background: #333; }
+.nav-cart svg { width: 16px; height: 16px; stroke: white; fill: none; stroke-width: 1.5; }
+
+/* ===== Hero ===== */
+.hero {
+  padding: 80px 0 60px;
+  text-align: center;
+}
+.hero-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.hero h1 { max-width: 680px; margin: 0 auto 16px; }
+.hero p {
+  max-width: 520px;
+  margin: 0 auto 28px;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+}
+.hero-cta {
+  display: inline-flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: white; }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-outline { border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { border-color: var(--text); }
+
+.hero-trust {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.hero-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.hero-trust-item svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 1.5; }
+
+/* ===== Products ===== */
+.section { padding: 60px 0; }
+.section-header { text-align: center; margin-bottom: 40px; }
+.section-header h2 { margin-bottom: 8px; }
+.section-header p { color: var(--text-secondary); }
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.product {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.product:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.product-img {
+  aspect-ratio: 1;
+  background: #F5F4F0;
+  overflow: hidden;
+}
+.product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.product:hover .product-img img { transform: scale(1.03); }
+.product-body { padding: 20px; }
+.product-cat {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.product-name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.product-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.product-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.product-price { font-size: 1.2rem; font-weight: 700; }
+.product-price small { font-size: 0.8rem; font-weight: 400; color: var(--text-muted); text-decoration: line-through; margin-left: 6px; }
+.product-rating { display: flex; align-items: center; gap: 4px; font-size: 0.82rem; color: var(--text-secondary); }
+.stars { color: #E5A53A; letter-spacing: 1px; font-size: 0.8rem; }
+
+.buy-options { display: flex; flex-direction: column; gap: 8px; }
+.buy-paypal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  background: var(--paypal);
+  color: var(--paypal-text);
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.88rem;
+  transition: filter 0.2s;
+}
+.buy-paypal:hover { filter: brightness(0.95); }
+.buy-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px;
+  background: var(--text);
+  color: white;
+  border-radius: var(--radius);
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+.buy-card:hover { background: #333; }
+.buy-card svg { width: 16px; height: 16px; }
+.product-shipping {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* ===== Features ===== */
+.features {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  background: var(--accent-light);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.feature-icon svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 1.5; }
+.feature h3 { margin-bottom: 6px; }
+.feature p { font-size: 0.88rem; color: var(--text-secondary); }
+
+/* ===== FAQ ===== */
+.faq-list { max-width: 700px; margin: 0 auto; }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+}
+.faq-q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--text);
+}
+.faq-q svg { width: 18px; height: 18px; stroke: var(--text-secondary); fill: none; stroke-width: 1.5; transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-q svg { transform: rotate(45deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.faq-item.open .faq-a { max-height: 200px; }
+.faq-a p { padding: 0 0 18px; font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ===== Footer ===== */
+.footer {
+  padding: 40px 0;
+  text-align: center;
+}
+.footer p { font-size: 0.82rem; color: var(--text-muted); }
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+.footer-links a { font-size: 0.85rem; color: var(--text-secondary); }
+.footer-links a:hover { color: var(--text); }
+
+/* ===== Checkout Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 32px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.modal-close:hover { background: #f0f0f0; }
+.modal-close svg { width: 18px; height: 18px; stroke: var(--text); fill: none; stroke-width: 1.5; }
+.modal h2 { font-size: 1.4rem; margin-bottom: 4px; }
+.modal-subtitle { font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 24px; }
+.modal-product {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+.modal-product img { width: 64px; height: 64px; border-radius: var(--radius); object-fit: cover; }
+.modal-product-info h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 2px; }
+.modal-product-info p { font-size: 0.82rem; color: var(--text-secondary); }
+.modal-product-price { margin-left: auto; font-weight: 700; font-size: 1.05rem; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 0.82rem; font-weight: 500; margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-pay-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.2s;
+}
+.modal-pay-btn.paypal { background: var(--paypal); color: var(--paypal-text); }
+.modal-pay-btn.card { background: var(--stripe); color: white; }
+.modal-pay-btn:hover { filter: brightness(0.95); }
+.modal-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.modal-divider::before, .modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.modal-secure {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.modal-secure svg { width: 14px; height: 14px; stroke: var(--accent); fill: none; stroke-width: 1.5; }
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .products { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+  .features-grid { grid-template-columns: 1fr; gap: 24px; }
+  .hero { padding: 48px 0 40px; }
+  .section { padding: 40px 0; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="logo">nook<span>.</span></a>
+    <div class="nav-links">
+      <a href="#products">Products</a>
+      <a href="#about">Why Nook</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <button class="nav-cart" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">
+      <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      Shop Now
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">Free US shipping on all orders</div>
+    <h1>Furniture that fits your space, not the other way around.</h1>
+    <p>Compact, well-designed pieces for apartments and small homes. Ships from US warehouse in 2-5 days. No tools required.</p>
+    <div class="hero-cta">
+      <a href="#products" class="btn btn-primary">Browse Products</a>
+      <a href="#about" class="btn btn-outline">Learn More</a>
+    </div>
+    <div class="hero-trust">
+      <div class="hero-trust-item">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        2-5 day delivery
+      </div>
+      <div class="hero-trust-item">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        30-day returns
+      </div>
+      <div class="hero-trust-item">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        2-year warranty
+      </div>
+      <div class="hero-trust-item">
+        <svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+        4.9/5 from 2,000+ reviews
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products -->
+<section class="section" id="products">
+  <div class="container">
+    <div class="section-header">
+      <h2>Designed for small spaces</h2>
+      <p>Every piece is compact, multi-functional, and easy to assemble.</p>
+    </div>
+    <div class="products" id="productGrid"></div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section features" id="about">
+  <div class="container">
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <h3>Ships in 2-5 days</h3>
+        <p>All products stocked in US warehouses. No waiting months for overseas shipping.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3>Tool-free assembly</h3>
+        <p>Every piece snaps together in under 15 minutes. No Allen keys, no frustration.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+        </div>
+        <h3>30-day returns</h3>
+        <p>Don't love it? Send it back within 30 days for a full refund. We cover return shipping.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-header">
+      <h2>Common questions</h2>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How long does shipping take?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>All orders ship from our US warehouse within 1-2 business days. Standard delivery takes 2-5 business days depending on your location. You'll receive a tracking number as soon as your order ships.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do I need tools to assemble?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>No. Every Nook product is designed for tool-free assembly. Pieces snap or slide together, and most items take 10-15 minutes to put together. Instructions are included and also available online.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What's your return policy?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>We offer a 30-day hassle-free return policy. If you're not satisfied, contact us for a prepaid return label. Items must be in original condition. Refunds are processed within 5 business days of receiving the return.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How do I pay?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>We accept all major credit cards (Visa, Mastercard, Amex) via Stripe, as well as PayPal. All transactions are encrypted and secure. You can also pay in 4 interest-free installments via Klarna or Afterpay.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do you ship to Alaska, Hawaii, or Canada?
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <div class="faq-a"><p>Currently we ship to the contiguous United States for free. Shipping to Alaska, Hawaii, and Canada is available for an additional fee calculated at checkout.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-links">
+      <a href="#products">Products</a>
+      <a href="#about">About</a>
+      <a href="#faq">FAQ</a>
+      <a href="mailto:hello@nook.com">Contact</a>
+      <a href="#">Shipping</a>
+      <a href="#">Returns</a>
+    </div>
+    <p>&copy; 2026 Nook Furniture. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Checkout Modal -->
+<div class="modal-overlay" id="checkoutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2>Quick Checkout</h2>
+    <p class="modal-subtitle">Enter your details and choose a payment method.</p>
+    <div class="modal-product">
+      <img id="modalImg" src="" alt="">
+      <div class="modal-product-info">
+        <h4 id="modalName"></h4>
+        <p>Free shipping &middot; 2-5 days</p>
+      </div>
+      <div class="modal-product-price" id="modalPrice"></div>
+    </div>
+    <form onsubmit="event.preventDefault(); alert('This is a demo. In production, you would be redirected to PayPal/Stripe to complete payment.');">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input type="text" placeholder="John" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input type="text" placeholder="Doe" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Shipping Address</label>
+        <input type="text" placeholder="123 Main St, Apt 4B" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" placeholder="New York" required>
+        </div>
+        <div class="form-group">
+          <label>ZIP Code</label>
+          <input type="text" placeholder="10001" required>
+        </div>
+      </div>
+      <button type="submit" class="modal-pay-btn paypal">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+        Pay with PayPal
+      </button>
+      <div class="modal-divider">or</div>
+      <button type="submit" class="modal-pay-btn card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Pay with Card
+      </button>
+      <p class="modal-secure">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Secure 256-bit SSL encrypted payment
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id: 1, name: 'Foldable Dining Table', cat: 'Dining', desc: 'Seats 4, folds flat to store under a bed.', price: 249, original: 329, rating: 4.8, reviews: 342, img: 'https://aka.doubaocdn.com/s/vkorw76CMx' },
+  { id: 2, name: 'Compact Nightstand', cat: 'Bedroom', desc: 'Minimal oak nightstand with soft-close drawer.', price: 129, original: 169, rating: 4.9, reviews: 518, img: 'https://aka.doubaocdn.com/s/V23l5SmOVE' },
+  { id: 3, name: 'Open Bookshelf', cat: 'Living Room', desc: 'Modular oak shelving, holds up to 100 lbs per shelf.', price: 279, original: 359, rating: 4.7, reviews: 203, img: 'https://aka.doubaocdn.com/s/OFVSQvBhPH' },
+  { id: 4, name: 'Dining Chair (Set of 2)', cat: 'Dining', desc: 'Walnut frame with linen seat. Stackable for storage.', price: 199, original: 259, rating: 4.8, reviews: 156, img: 'https://aka.doubaocdn.com/s/yCuUhoHeWK' },
+  { id: 5, name: 'Writing Desk', cat: 'Home Office', desc: 'Solid oak desk with cable management. Fits any corner.', price: 329, original: 429, rating: 4.9, reviews: 287, img: 'https://aka.doubaocdn.com/s/s0zmJAfhAf' },
+  { id: 6, name: 'Pendant Lamp', cat: 'Lighting', desc: 'Matte black pendant with warm glow. Dimmable.', price: 89, original: 119, rating: 4.6, reviews: 421, img: 'https://aka.doubaocdn.com/s/try3U1iLSX' },
+];
+
+function renderProducts() {
+  document.getElementById('productGrid').innerHTML = products.map(p => `
+    <div class="product">
+      <div class="product-img"><img src="${p.img}" alt="${p.name}"></div>
+      <div class="product-body">
+        <div class="product-cat">${p.cat}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-desc">${p.desc}</div>
+        <div class="product-meta">
+          <div class="product-price">$${p.price} <small>$${p.original}</small></div>
+          <div class="product-rating"><span class="stars">★★★★★</span> ${p.rating}</div>
+        </div>
+        <div class="buy-options">
+          <button class="buy-paypal" onclick="openCheckout(${p.id})">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/></svg>
+            Pay with PayPal
+          </button>
+          <button class="buy-card" onclick="openCheckout(${p.id})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            Pay with Card
+          </button>
+        </div>
+        <div class="product-shipping">Free shipping &middot; Ships in 1-2 days</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+let selectedProduct = null;
+function openCheckout(id) {
+  selectedProduct = products.find(p => p.id === id);
+  document.getElementById('modalImg').src = selectedProduct.img;
+  document.getElementById('modalName').textContent = selectedProduct.name;
+  document.getElementById('modalPrice').textContent = '$' + selectedProduct.price;
+  document.getElementById('checkoutModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('checkoutModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('checkoutModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function toggleFaq(btn) {
+  btn.parentElement.classList.toggle('open');
+}
+
+renderProducts();
+</script>
+</body>
+</html>
