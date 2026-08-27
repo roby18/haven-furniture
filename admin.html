@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haven Admin — Product Manager</title>
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f7f5f2;--surface:#fff;--border:#e8e4de;--text:#1a1a1a;--text-muted:#6b6560;--primary:#8b6f47;--primary-dark:#6d5636;--primary-light:#c4a87c;--accent:#5a7a5a;--danger:#c0392b;--danger-light:#fdecea;--radius:10px;--shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+h1,h2,h3{font-family:'Cormorant Garamold',serif;font-weight:600}
+
+/* Top Bar */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-logo{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--primary-dark)}
+.topbar-badge{font-size:.7rem;background:var(--bg);border:1px solid var(--border);padding:2px 8px;border-radius:20px;color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.conn-status{display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--text-muted)}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:#ccc}
+.conn-dot.ok{background:var(--accent)}
+.conn-dot.err{background:var(--danger)}
+.btn{padding:8px 18px;border-radius:8px;border:none;font-family:inherit;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:var(--danger-light);color:var(--danger)}
+.btn-danger:hover{background:#f8d7da}
+.btn-sm{padding:5px 12px;font-size:.78rem}
+
+/* Main */
+.main{max-width:1200px;margin:0 auto;padding:28px}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.page-head h1{font-size:1.6rem}
+.page-head .count{font-size:.85rem;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:400}
+
+/* Product Grid */
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.prod-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s}
+.prod-card:hover{box-shadow:var(--shadow)}
+.prod-card-img{width:100%;height:180px;object-fit:cover;background:var(--bg)}
+.prod-card-body{padding:14px}
+.prod-card-name{font-weight:600;font-size:.92rem;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-card-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.prod-card-price{font-weight:700;color:var(--primary-dark);font-size:1rem}
+.prod-card-cat{font-size:.75rem;color:var(--text-muted);background:var(--bg);padding:2px 8px;border-radius:20px}
+.prod-card-actions{display:flex;gap:8px}
+.prod-card-actions .btn{flex:1;justify-content:center}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px}
+.modal h2{font-size:1.3rem;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.82rem;font-weight:500;margin-bottom:5px;color:var(--text)}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:.88rem;background:var(--surface);color:var(--text)}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(139,111,71,.1)}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:24px;padding-top:18px;border-top:1px solid var(--border)}
+.img-preview{width:100%;height:140px;object-fit:cover;border-radius:8px;margin-top:8px;background:var(--bg);border:1px solid var(--border)}
+.img-preview-placeholder{width:100%;height:140px;border-radius:8px;margin-top:8px;background:var(--bg);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:.82rem}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 20px;border-radius:10px;font-size:.88rem;z-index:200;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--accent)}
+.toast.err{background:var(--danger)}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty h3{font-size:1.2rem;margin-bottom:8px;color:var(--text)}
+
+/* Config modal special */
+.config-note{font-size:.8rem;color:var(--text-muted);background:var(--bg);padding:12px;border-radius:8px;margin-bottom:18px;line-height:1.6}
+.config-note a{color:var(--primary)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-logo">Haven</span>
+    <span class="topbar-badge">Admin</span>
+  </div>
+  <div class="topbar-right">
+    <div class="conn-status" id="connStatus"><span class="conn-dot" id="connDot"></span><span id="connText">Not connected</span></div>
+    <button class="btn btn-outline btn-sm" onclick="openConfig()">Settings</button>
+    <button class="btn btn-primary btn-sm" onclick="openEditor()">+ Add Product</button>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveToGithub()" disabled>Save to GitHub</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-head">
+    <h1>Products <span class="count" id="prodCount"></span></h1>
+  </div>
+  <div class="prod-grid" id="prodGrid"></div>
+</div>
+
+<!-- Editor Modal -->
+<div class="modal-overlay" id="editorModal">
+  <div class="modal">
+    <h2 id="editorTitle">Add Product</h2>
+    <div class="form-group">
+      <label>Product Name *</label>
+      <input type="text" id="fName" placeholder="e.g. Modular Linen Sofa">
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="fCat">
+          <option>Living Room</option>
+          <option>Dining</option>
+          <option>Bedroom</option>
+          <option>Home Office</option>
+          <option>Lighting</option>
+          <option>Outdoor</option>
+          <option>Storage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Price (USD) *</label>
+        <input type="number" id="fPrice" min="0" step="0.01" placeholder="599">
+      </div>
+      <div class="form-group">
+        <label>Original Price</label>
+        <input type="number" id="fWas" min="0" step="0.01" placeholder="799">
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label>Rating (0-5)</label>
+        <input type="number" id="fRating" min="0" max="5" step="0.1" value="4.5">
+      </div>
+      <div class="form-group">
+        <label>Reviews Count</label>
+        <input type="number" id="fReviews" min="0" value="0">
+      </div>
+      <div class="form-group">
+        <label>Badge</label>
+        <select id="fBadge">
+          <option value="">None</option>
+          <option>Bestseller</option>
+          <option>New</option>
+          <option>Sale</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Image URL *</label>
+      <input type="url" id="fImg" placeholder="https://..." oninput="previewImg(this.value)">
+      <img id="imgPreview" class="img-preview" style="display:none" onload="this.style.display='block';document.getElementById('imgPlaceholder').style.display='none'">
+      <div id="imgPlaceholder" class="img-preview-placeholder">Image preview appears here</div>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="fDesc" placeholder="Product description..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEditor()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Config Modal -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h2>GitHub Settings</h2>
+    <div class="config-note">
+      Create a token at <a href="https://github.com/settings/tokens/new" target="_blank">github.com/settings/tokens/new</a> with <strong>repo</strong> scope. Your token is stored only in this browser's localStorage and sent directly to GitHub.
+    </div>
+    <div class="form-group">
+      <label>GitHub Token</label>
+      <input type="password" id="cfgToken" placeholder="ghp_xxxxxxxxxxxx">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Repository Owner</label>
+        <input type="text" id="cfgOwner" value="roby18">
+      </div>
+      <div class="form-group">
+        <label>Repository Name</label>
+        <input type="text" id="cfgRepo" value="haven-furniture">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeConfig()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveConfig()">Connect</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let products=[];
+let editingId=null;
+let fileSha=null;
+let config=JSON.parse(localStorage.getItem('haven_admin_config')||'{}');
+
+// ===== Config =====
+function openConfig(){document.getElementById('configModal').classList.add('show');document.getElementById('cfgToken').value=config.token||'';document.getElementById('cfgOwner').value=config.owner||'roby18';document.getElementById('cfgRepo').value=config.repo||'haven-furniture';}
+function closeConfig(){document.getElementById('configModal').classList.remove('show');}
+function saveConfig(){
+  config={token:document.getElementById('cfgToken').value.trim(),owner:document.getElementById('cfgOwner').value.trim(),repo:document.getElementById('cfgRepo').value.trim()};
+  localStorage.setItem('haven_admin_config',JSON.stringify(config));
+  closeConfig();
+  setConn('connecting');
+  loadFromGithub();
+}
+function setConn(state,text){
+  const dot=document.getElementById('connDot'),txt=document.getElementById('connText');
+  dot.className='conn-dot';
+  if(state==='ok'){dot.classList.add('ok');txt.textContent=text||'Connected to '+config.owner+'/'+config.repo;document.getElementById('saveBtn').disabled=false;}
+  else if(state==='err'){dot.classList.add('err');txt.textContent=text||'Connection failed';document.getElementById('saveBtn').disabled=true;}
+  else if(state==='connecting'){txt.textContent='Connecting...';document.getElementById('saveBtn').disabled=true;}
+  else{txt.textContent=text||'Not connected';document.getElementById('saveBtn').disabled=true;}
+}
+
+// ===== GitHub API =====
+async function githubAPI(path,options={}){
+  const res=await fetch('https://api.github.com/repos/'+config.owner+'/'+config.repo+'/'+path,{
+    ...options,
+    headers:{'Authorization':'token '+config.token,'Accept':'application/vnd.github+json',...(options.headers||{})}
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.message||'GitHub API error: '+res.status);}
+  return res.json();
+}
+
+async function loadFromGithub(){
+  if(!config.token){setConn('disconnected');openConfig();return;}
+  try{
+    const data=await githubAPI('contents/products.json');
+    fileSha=data.sha;
+    products=JSON.parse(decodeURIComponent(escape(atob(data.content.replace(/\n/g,'')))));
+    setConn('ok');
+    renderGrid();
+    showToast('Loaded '+products.length+' products from GitHub','ok');
+  }catch(e){
+    setConn('err',e.message);
+    showToast('Failed to load: '+e.message,'err');
+  }
+}
+
+async function saveToGithub(){
+  if(!products.length){showToast('No products to save','err');return;}
+  const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const content=btoa(unescape(encodeURIComponent(JSON.stringify(products,null,2))));
+    await githubAPI('contents/products.json',{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:'Update products via admin panel',content:content,sha:fileSha})
+    });
+    // Refresh SHA
+    const data=await githubAPI('contents/products.json');
+    fileSha=data.sha;
+    showToast('Saved to GitHub! Site will update in ~1 min.','ok');
+  }catch(e){showToast('Save failed: '+e.message,'err');}
+  btn.disabled=false;btn.textContent='Save to GitHub';
+}
+
+// ===== Product CRUD =====
+function renderGrid(){
+  document.getElementById('prodCount').textContent='('+products.length+' items)';
+  const grid=document.getElementById('prodGrid');
+  if(!products.length){grid.innerHTML='<div class="empty" style="grid-column:1/-1"><h3>No products yet</h3><p>Click "Add Product" to create your first product.</p></div>';return;}
+  grid.innerHTML=products.map(p=>`
+    <div class="prod-card">
+      <img class="prod-card-img" src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">
+      <div class="prod-card-body">
+        <div class="prod-card-name">${p.name}</div>
+        <div class="prod-card-meta">
+          <span class="prod-card-price">$${p.price}${p.was?` <span style="text-decoration:line-through;color:var(--text-muted);font-weight:400;font-size:.82rem">$${p.was}</span>`:''}</span>
+          <span class="prod-card-cat">${p.cat}</span>
+        </div>
+        <div class="prod-card-actions">
+          <button class="btn btn-outline btn-sm" onclick="openEditor(${p.id})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openEditor(id){
+  editingId=id||null;
+  const p=id?products.find(x=>x.id===id):null;
+  document.getElementById('editorTitle').textContent=p?'Edit Product':'Add Product';
+  document.getElementById('fName').value=p?p.name:'';
+  document.getElementById('fCat').value=p?p.cat:'Living Room';
+  document.getElementById('fPrice').value=p?p.price:'';
+  document.getElementById('fWas').value=p&&p.was?p.was:'';
+  document.getElementById('fRating').value=p?p.rating:4.5;
+  document.getElementById('fReviews').value=p?p.reviews:0;
+  document.getElementById('fBadge').value=p&&p.badge?p.badge:'';
+  document.getElementById('fImg').value=p?p.img:'';
+  document.getElementById('fDesc').value=p?p.desc:'';
+  previewImg(p?p.img:'');
+  document.getElementById('editorModal').classList.add('show');
+}
+function closeEditor(){document.getElementById('editorModal').classList.remove('show');editingId=null;}
+
+function previewImg(url){
+  const img=document.getElementById('imgPreview'),ph=document.getElementById('imgPlaceholder');
+  if(url){img.src=url;img.style.display='block';ph.style.display='none';img.onerror=()=>{img.style.display='none';ph.style.display='flex';};}
+  else{img.style.display='none';ph.style.display='flex';}
+}
+
+function saveProduct(){
+  const name=document.getElementById('fName').value.trim();
+  const price=parseFloat(document.getElementById('fPrice').value);
+  const img=document.getElementById('fImg').value.trim();
+  if(!name){showToast('Product name is required','err');return;}
+  if(isNaN(price)||price<0){showToast('Valid price is required','err');return;}
+  if(!img){showToast('Image URL is required','err');return;}
+  const data={
+    id:editingId||Date.now(),
+    name,
+    cat:document.getElementById('fCat').value,
+    price,
+    was:parseFloat(document.getElementById('fWas').value)||0,
+    rating:parseFloat(document.getElementById('fRating').value)||0,
+    reviews:parseInt(document.getElementById('fReviews').value)||0,
+    img,
+    badge:document.getElementById('fBadge').value,
+    badgeType:document.getElementById('fBadge').value==='Sale'?'sale':'',
+    desc:document.getElementById('fDesc').value.trim()
+  };
+  if(editingId){const i=products.findIndex(x=>x.id===editingId);products[i]=data;showToast('Product updated','ok');}
+  else{products.push(data);showToast('Product added','ok');}
+  closeEditor();renderGrid();
+}
+
+function deleteProduct(id){
+  if(!confirm('Delete this product?'))return;
+  products=products.filter(x=>x.id!==id);
+  renderGrid();
+  showToast('Product deleted (remember to Save to GitHub)','ok');
+}
+
+// ===== Toast =====
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast show '+(type||'');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ===== Init =====
+if(config.token){setConn('connecting');loadFromGithub();}
+else{setConn('disconnected');renderGrid();}
+</script>
+</body>
+</html>
