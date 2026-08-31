@@ -12,6 +12,10 @@
 <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap">
 <!-- PayPal SDK: replace YOUR_CLIENT_ID with your PayPal REST API Client ID (PayPal Developer Dashboard) -->
 <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD" data-sdk-integration-source="integrationbuilder"></script>
+<!-- Firebase (Auth + Firestore) for user accounts. Fill CONFIG.firebase to activate; falls back to local demo mode if blank. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#F7F5F0;--bg-alt:#EFEBE3;--text:#2A2A2A;--text-light:#6B6560;--text-muted:#9A9590;--primary:#8B6F47;--primary-dark:#6E5635;--primary-light:#B8A07E;--accent:#7A8B6F;--border:#E0DBD2;--border-light:#EDE9E1;--white:#fff;--shadow-sm:0 1px 3px rgba(42,42,42,.06);--shadow-md:0 4px 20px rgba(42,42,42,.08);--shadow-lg:0 12px 40px rgba(42,42,42,.12);--font-display:'Cormorant Garamond',Georgia,serif;--font-body:'DM Sans',-apple-system,sans-serif;--radius:4px;--radius-md:8px;--radius-lg:16px;--t:.3s cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -161,6 +165,42 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
 /* Responsive */
 @media(max-width:1024px){.cat-grid{grid-template-columns:repeat(3,1fr)}.prod-grid{grid-template-columns:repeat(3,1fr)}.footer-grid{grid-template-columns:1fr 1fr 1fr}.footer-brand{grid-column:1/-1}.pdp-grid{grid-template-columns:1fr;gap:32px}.cart-layout,.checkout-layout{grid-template-columns:1fr}.blog-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){.nav{display:none}.cat-grid{grid-template-columns:repeat(2,1fr)}.prod-grid{grid-template-columns:repeat(2,1fr);gap:14px}.trust-grid{grid-template-columns:repeat(2,1fr);gap:20px}.shop-layout{grid-template-columns:1fr}.filters{display:none}.footer-grid{grid-template-columns:1fr 1fr;gap:24px}.section{padding:48px 0}.cart-item{grid-template-columns:72px 1fr}.cart-item-img{width:72px;height:72px}.blog-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.checkout-steps{gap:4px}.step span:not(.step-num){display:none}}
+
+/* ===== Account Center ===== */
+.account-wrap{display:grid;grid-template-columns:240px 1fr;gap:32px;padding:32px 0 64px;align-items:start}
+.acct-side{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:16px;position:sticky;top:90px}
+.acct-user{display:flex;align-items:center;gap:12px;padding:8px 8px 16px;border-bottom:1px solid var(--border-light);margin-bottom:10px}
+.acct-avatar{width:42px;height:42px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:1.05rem;flex-shrink:0}
+.acct-user-meta{min-width:0}.acct-user-name{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.acct-user-mail{font-size:.75rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct-tab{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);font-size:.88rem;cursor:pointer;color:var(--text-light);transition:var(--t);font-weight:500}
+.acct-tab:hover{background:var(--bg)}.acct-tab.active{background:var(--primary);color:#fff}
+.acct-tab svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8}
+.acct-tab.logout{color:#c0392b;margin-top:8px;border-top:1px solid var(--border-light);border-radius:0}
+.acct-panel{display:none;min-height:400px}.acct-panel.active{display:block}
+.acct-head{margin-bottom:24px}.acct-head h1{font-size:1.7rem;margin-bottom:4px}.acct-head p{color:var(--text-light);font-size:.9rem}
+.acct-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.acct-stat{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:20px}
+.acct-stat .num{font-size:1.8rem;font-weight:700;color:var(--primary-dark);font-family:var(--font-body)}.acct-stat .lbl{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+.acct-empty{background:var(--white);border:1px dashed var(--border);border-radius:var(--radius-md);padding:48px 24px;text-align:center;color:var(--text-muted)}
+.acct-empty h3{color:var(--text);margin-bottom:6px;font-size:1.1rem}
+.order-card{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:18px;margin-bottom:14px}
+.order-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.order-id{font-weight:600;font-size:.92rem}.order-date{font-size:.78rem;color:var(--text-muted)}
+.order-status{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;background:#eef3ea;color:var(--accent)}
+.order-items{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.order-item-chip{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text-light)}
+.order-item-chip img{width:38px;height:38px;object-fit:cover;border-radius:var(--radius)}
+.order-total{font-size:.88rem;text-align:right;color:var(--text-light)}.order-total b{color:var(--text);font-size:1rem}
+.addr-card{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:18px;margin-bottom:14px;position:relative}
+.addr-card.default{border-color:var(--primary)}
+.addr-default-tag{position:absolute;top:14px;right:14px;font-size:.68rem;font-weight:600;background:var(--primary);color:#fff;padding:2px 8px;border-radius:20px}
+.addr-card h4{font-size:.95rem;margin-bottom:6px}.addr-card p{font-size:.85rem;color:var(--text-light);line-height:1.6}
+.addr-actions{display:flex;gap:8px;margin-top:12px}
+.acct-form{background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius-md);padding:24px;max-width:520px}
+.acct-form .form-group{margin-bottom:16px}.acct-form label{display:block;font-size:.82rem;font-weight:500;margin-bottom:5px}
+.acct-form input,.acct-form select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-family:var(--font-body);font-size:.88rem;outline:none}.acct-form input:focus{border-color:var(--primary)}
+.acct-guest{text-align:center;padding:80px 20px}.acct-guest h2{font-size:1.6rem;margin-bottom:10px}.acct-guest p{color:var(--text-light);margin-bottom:24px}
+@media(max-width:768px){.account-wrap{grid-template-columns:1fr}.acct-side{position:static;display:flex;overflow-x:auto;gap:4px;padding:10px}.acct-user{display:none}.acct-tab.logout{border-top:none;margin-top:0;white-space:nowrap}.acct-tab{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -179,7 +219,7 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
   </nav>
   <div class="header-actions">
     <button class="icon-btn" onclick="alert('Search functionality demo')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
-    <button class="icon-btn" onclick="openAuth()"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <button class="icon-btn" id="navAccountBtn" onclick="onAccountClick()"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
     <button class="icon-btn" onclick="go('wishlist')"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span class="wishlist-count" id="wishCount" style="display:none">0</span></button>
     <button class="icon-btn" onclick="go('cart')"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-count" id="cartCount">0</span></button>
   </div>
@@ -350,17 +390,19 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
       <!-- Step 1: Information -->
       <div class="checkout-step active" id="cstep1">
         <h3 style="font-family:var(--font-body);font-weight:600;font-size:1.1rem;margin-bottom:16px">Contact Information</h3>
-        <div class="form-group"><label>Email</label><input type="email" placeholder="you@example.com"></div>
+        <div id="checkoutLoginBanner" style="display:none;background:var(--bg-alt);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px;font-size:.84rem;display:none;justify-content:space-between;align-items:center"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="coEmail" placeholder="you@example.com"></div>
         <h3 style="font-family:var(--font-body);font-weight:600;font-size:1.1rem;margin:20px 0 16px">Shipping Address</h3>
         <div class="form-grid">
-          <div class="form-group"><label>First Name</label><input type="text" placeholder="John"></div>
-          <div class="form-group"><label>Last Name</label><input type="text" placeholder="Doe"></div>
-          <div class="form-group full"><label>Address</label><input type="text" placeholder="123 Main St, Apt 4B"></div>
-          <div class="form-group"><label>City</label><input type="text" placeholder="New York"></div>
-          <div class="form-group"><label>ZIP Code</label><input type="text" placeholder="10001"></div>
-          <div class="form-group full"><label>State</label><select><option>Select state</option><option>New York</option><option>California</option><option>Texas</option><option>Florida</option></select></div>
-          <div class="form-group full"><label>Phone</label><input type="tel" placeholder="(555) 123-4567"></div>
+          <div class="form-group"><label>First Name</label><input type="text" id="coFirstName" placeholder="John"></div>
+          <div class="form-group"><label>Last Name</label><input type="text" id="coLastName" placeholder="Doe"></div>
+          <div class="form-group full"><label>Address</label><input type="text" id="coLine" placeholder="123 Main St, Apt 4B"></div>
+          <div class="form-group"><label>City</label><input type="text" id="coCity" placeholder="New York"></div>
+          <div class="form-group"><label>ZIP Code</label><input type="text" id="coZip" placeholder="10001"></div>
+          <div class="form-group full"><label>State</label><select id="coState"><option value="">Select state</option><option>New York</option><option>California</option><option>Texas</option><option>Florida</option></select></div>
+          <div class="form-group full"><label>Phone</label><input type="tel" id="coPhone" placeholder="(555) 123-4567"></div>
         </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:.84rem;margin-bottom:8px"><input type="checkbox" id="coSaveAddr"> Save this address to my account</label>
         <div class="checkout-nav"><span></span><button class="btn btn-primary" onclick="nextStep(2)">Continue to Shipping</button></div>
       </div>
       <!-- Step 2: Shipping -->
@@ -400,9 +442,9 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
         <div class="order-review" id="reviewItems"></div>
         <div style="background:var(--bg);border-radius:var(--radius-md);padding:16px;margin-bottom:16px">
           <h4 style="font-size:.9rem;margin-bottom:8px">Shipping to:</h4>
-          <p style="font-size:.88rem;color:var(--text-light)">John Doe, 123 Main St Apt 4B, New York, NY 10001</p>
+          <p style="font-size:.88rem;color:var(--text-light)" id="reviewShipping">Please fill in your shipping address</p>
           <h4 style="font-size:.9rem;margin:12px 0 8px">Payment:</h4>
-          <p style="font-size:.88rem;color:var(--text-light)">Visa ending in 3456</p>
+          <p style="font-size:.88rem;color:var(--text-light)" id="reviewPayment">Credit / Debit Card</p>
         </div>
         <div class="checkout-nav"><button class="btn btn-outline" onclick="nextStep(3)">Back</button><button class="btn btn-primary" onclick="placeOrder()">Place Order</button></div>
       </div>
@@ -471,6 +513,80 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
   <div class="prod-grid" id="wishlistGrid"></div>
 </div></main>
 
+<!-- ===== ACCOUNT CENTER ===== -->
+<main id="view-account" class="view"><div class="container">
+  <!-- Logged-out state -->
+  <div class="acct-guest" id="acctGuest">
+    <h2>Sign in to your account</h2>
+    <p>Track orders, save addresses, and check out faster.</p>
+    <button class="btn btn-primary" onclick="openAuth('login')" style="padding:12px 32px">Sign In / Create Account</button>
+  </div>
+  <!-- Logged-in state -->
+  <div class="account-wrap" id="acctMain" style="display:none">
+    <aside class="acct-side">
+      <div class="acct-user"><div class="acct-avatar" id="acctAvatar">U</div><div class="acct-user-meta"><div class="acct-user-name" id="acctName">User</div><div class="acct-user-mail" id="acctEmail">email</div></div></div>
+      <div class="acct-tab active" data-tab="overview" onclick="switchAcctTab('overview')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</div>
+      <div class="acct-tab" data-tab="orders" onclick="switchAcctTab('orders')"><svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Orders</div>
+      <div class="acct-tab" data-tab="addresses" onclick="switchAcctTab('addresses')"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Addresses</div>
+      <div class="acct-tab" data-tab="settings" onclick="switchAcctTab('settings')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</div>
+      <div class="acct-tab logout" onclick="doSignOut()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</div>
+    </aside>
+    <div>
+      <!-- Overview -->
+      <section class="acct-panel active" id="tab-overview">
+        <div class="acct-head"><h1>Hello, <span id="ovName">there</span></h1><p id="ovBackend"></p></div>
+        <div class="acct-cards">
+          <div class="acct-stat"><div class="num" id="statOrders">0</div><div class="lbl">Total Orders</div></div>
+          <div class="acct-stat"><div class="num" id="statSpent">$0</div><div class="lbl">Lifetime Spend</div></div>
+          <div class="acct-stat"><div class="num" id="statAddr">0</div><div class="lbl">Saved Addresses</div></div>
+        </div>
+        <h3 style="font-family:var(--font-body);font-weight:600;margin-bottom:12px">Recent Orders</h3>
+        <div id="ovRecentOrders"></div>
+      </section>
+      <!-- Orders -->
+      <section class="acct-panel" id="tab-orders">
+        <div class="acct-head"><h1>Order History</h1><p>All your past orders and their status.</p></div>
+        <div id="ordersList"></div>
+      </section>
+      <!-- Addresses -->
+      <section class="acct-panel" id="tab-addresses">
+        <div class="acct-head" style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px"><div><h1>Address Book</h1><p>Save addresses for faster checkout.</p></div><button class="btn btn-primary" onclick="editAddress()">+ Add New Address</button></div>
+        <div id="addressList"></div>
+      </section>
+      <!-- Settings -->
+      <section class="acct-panel" id="tab-settings">
+        <div class="acct-head"><h1>Account Settings</h1><p>Manage your profile and security.</p></div>
+        <div class="acct-form">
+          <h3 style="font-family:var(--font-body);font-weight:600;margin-bottom:16px">Profile</h3>
+          <div class="form-group"><label>Full Name</label><input type="text" id="setName"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="setEmail" disabled style="background:var(--bg)"></div>
+          <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+          <h3 style="font-family:var(--font-body);font-weight:600;margin:28px 0 16px">Change Password</h3>
+          <div class="form-group"><label>New Password</label><input type="password" id="setPwd" placeholder="At least 6 characters"></div>
+          <button class="btn btn-outline" onclick="savePassword()">Update Password</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div></main>
+
+<!-- Address Editor Modal -->
+<div class="modal-overlay" id="addrModal"><div class="modal" style="max-width:520px">
+  <button class="modal-close" onclick="closeAddrModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <h2 id="addrModalTitle">Add Address</h2>
+  <div class="form-grid" style="margin-top:16px">
+    <div class="form-group"><label>First Name</label><input id="adFirstName"></div>
+    <div class="form-group"><label>Last Name</label><input id="adLastName"></div>
+    <div class="form-group" style="grid-column:1/-1"><label>Address</label><input id="adLine" placeholder="123 Main St, Apt 4B"></div>
+    <div class="form-group"><label>City</label><input id="adCity"></div>
+    <div class="form-group"><label>ZIP Code</label><input id="adZip"></div>
+    <div class="form-group" style="grid-column:1/-1"><label>State</label><select id="adState"><option value="">Select state</option><option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option><option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option><option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option><option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option><option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option><option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option><option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option><option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option><option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option><option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option><option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option><option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option><option>Wisconsin</option><option>Wyoming</option></select></div>
+    <div class="form-group" style="grid-column:1/-1"><label>Phone</label><input id="adPhone" placeholder="(555) 123-4567"></div>
+  </div>
+  <label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-bottom:16px"><input type="checkbox" id="adDefault"> Set as default address</label>
+  <div style="display:flex;gap:10px;justify-content:flex-end"><button class="btn btn-outline" onclick="closeAddrModal()">Cancel</button><button class="btn btn-primary" onclick="saveAddrForm()">Save Address</button></div>
+</div></div>
+
 <!-- ===== LEGAL PAGES ===== -->
 <main id="view-legal" class="view"><div class="container" style="padding:40px 0 64px;max-width:800px">
   <div class="breadcrumb" style="padding:20px 0"><a href="#/" onclick="go('home')">Home</a><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span id="legalCrumb">Policy</span></div>
@@ -499,13 +615,15 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
 <div class="modal-overlay" id="authModal"><div class="modal">
   <button class="modal-close" onclick="closeAuth()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <h2 id="authTitle">Welcome back</h2><p class="modal-sub" id="authSub">Sign in to your account</p>
-  <form onsubmit="event.preventDefault();showToast('Account feature demo');closeAuth()">
-    <div class="form-group" id="nameGroup" style="display:none"><label>Full Name</label><input type="text" placeholder="John Doe"></div>
-    <div class="form-group"><label>Email</label><input type="email" placeholder="you@example.com"></div>
-    <div class="form-group"><label>Password</label><input type="password" placeholder="••••••••"></div>
+  <form onsubmit="event.preventDefault();submitAuth()">
+    <div class="form-group" id="nameGroup" style="display:none"><label>Full Name</label><input type="text" id="authName" placeholder="John Doe" autocomplete="name"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="email" required></div>
+    <div class="form-group"><label>Password</label><input type="password" id="authPwd" placeholder="At least 6 characters" autocomplete="current-password" required></div>
+    <p id="authError" style="display:none;color:#c0392b;font-size:.8rem;margin-bottom:8px"></p>
     <button type="submit" class="btn btn-primary" id="authBtn">Sign In</button>
   </form>
   <p class="modal-switch" id="authSwitch">Don't have an account? <a onclick="toggleAuth()">Sign up</a></p>
+  <p id="authBackendNote" style="font-size:.72rem;color:var(--text-muted);text-align:center;margin-top:12px"></p>
 </div></div>
 
 <!-- Toast -->
@@ -515,12 +633,24 @@ h1{font-size:clamp(2.2rem,5vw,4rem)}h2{font-size:clamp(1.6rem,3.5vw,2.6rem)}h3{f
 // ===== Data =====
 let products=[];
 
-// ===== SITE CONFIG — 部署前修改这两项 =====
+// ===== SITE CONFIG — 部署前修改这些配置 =====
 const CONFIG = {
   storeEmail: 'your-email@gmail.com',  // 接收订单通知的邮箱（去 FormSubmit.co 激活一次即可）
-  paypalClientId: 'YOUR_CLIENT_ID'     // PayPal Client ID（PayPal Developer Dashboard 获取）
+  paypalClientId: 'YOUR_CLIENT_ID',    // PayPal Client ID（PayPal Developer Dashboard 获取）
+  // Firebase 用户体系：在 https://console.firebase.google.com 创建项目后，把配置粘贴到这里。留空则使用本地演示模式（数据只存在当前浏览器）。
+  firebase: {
+    apiKey: "YOUR_FIREBASE_API_KEY",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "000000000000",
+    appId: "1:000000000000:web:xxxxxxxxxxxx"
+  }
 };
 let cart=[],wishlist=[],couponApplied=false,currentProduct=null,authMode='login';
+let currentUser=null;            // 当前登录用户 {uid,email,displayName}
+let userAddresses=[],userOrders=[];  // 当前用户的地址簿和订单
+let authBackend='local';         // 'firebase' | 'local'
 
 // ===== Render =====
 function starSvg(){return '<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'}
@@ -542,6 +672,7 @@ function go(view){
   if(view==='cart')renderCart();
   if(view==='checkout')renderCheckout();
   if(view==='wishlist')renderProducts();
+  if(view==='account'){if(currentUser)Auth.loadUserData().then(renderAccount);renderAccount();}
 }
 
 // ===== Product Detail =====
@@ -627,37 +758,97 @@ function renderCheckout(){
   document.getElementById('coSubtotal').textContent='$'+sub.toFixed(2);
   document.getElementById('coTax').textContent='$'+tax.toFixed(2);
   document.getElementById('coTotal').textContent='$'+(sub+tax).toFixed(2);
+  autofillCheckout();
+}
+// Autofill checkout from logged-in user + default address
+function autofillCheckout(){
+  const view=document.getElementById('view-checkout');if(!view)return;
+  const banner=document.getElementById('checkoutLoginBanner');
+  if(currentUser){
+    if(!document.getElementById('coEmail').value)document.getElementById('coEmail').value=currentUser.email||'';
+    banner.style.display='flex';
+    banner.innerHTML=`<span>Signed in as <b>${currentUser.email}</b></span><button class="btn btn-outline" style="padding:4px 12px;font-size:.78rem" onclick="doSignOut()">Sign out</button>`;
+    const addr=Auth.defaultAddress();
+    if(addr){
+      document.getElementById('coFirstName').value=addr.firstName||'';
+      document.getElementById('coLastName').value=addr.lastName||'';
+      document.getElementById('coLine').value=addr.line||'';
+      document.getElementById('coCity').value=addr.city||'';
+      document.getElementById('coZip').value=addr.zip||'';
+      document.getElementById('coState').value=addr.state||'';
+      document.getElementById('coPhone').value=addr.phone||'';
+    }
+  }else{
+    banner.style.display='flex';
+    banner.innerHTML=`<span>Already have an account? Sign in for faster checkout.</span><button class="btn btn-outline" style="padding:4px 12px;font-size:.78rem" onclick="openAuth('login')">Sign in</button>`;
+  }
+}
+function getCheckoutAddress(){
+  return{
+    firstName:document.getElementById('coFirstName').value.trim(),
+    lastName:document.getElementById('coLastName').value.trim(),
+    line:document.getElementById('coLine').value.trim(),
+    city:document.getElementById('coCity').value.trim(),
+    zip:document.getElementById('coZip').value.trim(),
+    state:document.getElementById('coState').value,
+    phone:document.getElementById('coPhone').value.trim(),
+    email:document.getElementById('coEmail').value.trim()
+  };
 }
 function renderReview(){
-  document.getElementById('reviewItems').innerHTML=cart.map(i=>`<div class="review-item"><img src="${i.img}" alt=""><div class="review-item-info"><h4>${i.name}</h4><p>Qty: ${i.qty} | Beige</p></div><div class="review-item-price">$${(i.price*i.qty).toFixed(2)}</div></div>`).join('');
+  document.getElementById('reviewItems').innerHTML=cart.map(i=>`<div class="review-item"><img src="${i.img}" alt=""><div class="review-item-info"><h4>${i.name}</h4><p>Qty: ${i.qty}</p></div><div class="review-item-price">$${(i.price*i.qty).toFixed(2)}</div></div>`).join('');
+  const a=getCheckoutAddress();
+  document.getElementById('reviewShipping').textContent=[a.firstName,a.lastName].filter(Boolean).join(' ')+(a.line?', '+a.line:'')+(a.city?', '+a.city:'')+(a.state?', '+a.state:'')+(a.zip?' '+a.zip:'');
+  const pay=document.querySelector('input[name="pay"]:checked');
+  let payLabel='Credit / Debit Card';
+  if(pay){const lbl=pay.closest('.pay-opt').querySelector('h4');if(lbl)payLabel=lbl.textContent;}
+  document.getElementById('reviewPayment').textContent=payLabel;
 }
-function placeOrder(){
+async function placeOrder(){
   if(!cart.length){showToast('Your cart is empty');return;}
+  const addr=getCheckoutAddress();
+  if(!addr.email||!addr.firstName||!addr.lastName||!addr.line||!addr.city||!addr.zip||!addr.state){showToast('Please complete your contact and shipping information');currentStep=1;document.querySelectorAll('.checkout-step').forEach((s,i)=>s.classList.toggle('active',i===0));return;}
   const sub=cart.reduce((s,i)=>s+i.price*i.qty,0);
   const tax=sub*0.08;
   const disc=couponApplied?sub*0.1:0;
-  const total=(sub+tax-disc).toFixed(2);
+  const total=+(sub+tax-disc).toFixed(2);
   const orderId='HAV-'+Date.now().toString(36).toUpperCase();
-  const orderItems=cart.map(i=>`${i.name} x${i.qty} — $${(i.price*i.qty).toFixed(2)}`).join('\n');
-  // Send order notification via FormSubmit.co (free, no signup — first submission sends activation email)
+  const orderItems=cart.map(i=>({id:i.id,name:i.name,img:i.img,price:i.price,qty:i.qty}));
+  const order={id:orderId,createdAt:Date.now(),status:'Processing',items:orderItems,subtotal:+sub.toFixed(2),tax:+tax.toFixed(2),discount:+disc.toFixed(2),total,shipping:addr,paymentMethod:'Credit Card'};
+  // Persist to signed-in user's account (Firebase cloud or local), and optionally save address
+  if(currentUser){
+    try{
+      if(document.getElementById('coSaveAddr').checked){
+        const existing=Auth.defaultAddress();
+        await Auth.saveAddress({...addr,isDefault:!existing});
+      }
+      await Auth.saveOrder(order);
+    }catch(e){console.warn('Failed to persist order to account',e);}
+  }
+  // Send merchant order notification via FormSubmit.co
+  const itemsText=orderItems.map(i=>`${i.name} x${i.qty} — $${(i.price*i.qty).toFixed(2)}`).join('\n');
   fetch('https://formsubmit.co/ajax/'+CONFIG.storeEmail,{
     method:'POST',
     headers:{'Content-Type':'application/json','Accept':'application/json'},
     body:JSON.stringify({
-      _subject:'New Order '+orderId+' — $'+total,
+      _subject:'New Order '+orderId+' — $'+total.toFixed(2),
       _template:'table',
       OrderID:orderId,
-      Items:orderItems,
+      Customer:(addr.firstName+' '+addr.lastName),
+      Email:addr.email,
+      Phone:addr.phone||'N/A',
+      'Shipping Address':[addr.line,addr.city,addr.state,addr.zip].join(', '),
+      Items:itemsText,
       Subtotal:'$'+sub.toFixed(2),
       Tax:'$'+tax.toFixed(2),
       Discount:couponApplied?'$'+disc.toFixed(2):'None',
-      Total:'$'+total,
+      Total:'$'+total.toFixed(2),
       Shipping:'Standard (2-5 days)',
       Payment:'Credit Card'
     })
   }).catch(()=>{});
   showToast('Order '+orderId+' placed! Check your email for confirmation.');
-  cart=[];couponApplied=false;updateCounts();setTimeout(()=>go('home'),2000);
+  cart=[];couponApplied=false;updateCounts();setTimeout(()=>go(currentUser?'account':'home'),2000);
 }
 
 // Render PayPal Smart Buttons when on payment step
@@ -692,13 +883,189 @@ function toggleWish(id,btn){
   updateCounts();
 }
 
-// ===== Auth =====
-function openAuth(){document.getElementById('authModal').classList.add('open');document.body.style.overflow='hidden'}
-function closeAuth(){document.getElementById('authModal').classList.remove('open');document.body.style.overflow=''}
-function toggleAuth(){
-  if(authMode==='login'){authMode='signup';document.getElementById('authTitle').textContent='Create account';document.getElementById('authSub').textContent='Join Haven for exclusive deals';document.getElementById('nameGroup').style.display='block';document.getElementById('authBtn').textContent='Sign Up';document.getElementById('authSwitch').innerHTML='Already have an account? <a onclick="toggleAuth()">Sign in</a>'}
-  else{authMode='login';document.getElementById('authTitle').textContent='Welcome back';document.getElementById('authSub').textContent='Sign in to your account';document.getElementById('nameGroup').style.display='none';document.getElementById('authBtn').textContent='Sign In';document.getElementById('authSwitch').innerHTML='Don\'t have an account? <a onclick="toggleAuth()">Sign up</a>'}
+// ===== User System: unified Auth + Data layer (Firebase when configured, localStorage fallback) =====
+const Auth=(()=>{
+  let fbAuth=null,fbDb=null,fbReady=false;
+  function isFirebaseConfigured(){return CONFIG.firebase&&CONFIG.firebase.apiKey&&!CONFIG.firebase.apiKey.startsWith('YOUR_')&&typeof firebase!=='undefined';}
+  // ---- local (demo) backend helpers ----
+  const LK={users:'haven_users',session:'haven_session',data:p=>'haven_data_'+p};
+  function localUsers(){return JSON.parse(localStorage.getItem(LK.users)||'{}');}
+  function saveLocalUsers(u){localStorage.setItem(LK.users,JSON.stringify(u));}
+  function localData(uid){return JSON.parse(localStorage.getItem(LK.data(uid))||'{"addresses":[],"orders":[]}');}
+  function saveLocalData(uid,d){localStorage.setItem(LK.data(uid),JSON.stringify(d));}
+  // ---- init ----
+  function init(){
+    if(isFirebaseConfigured()){
+      try{
+        firebase.initializeApp(CONFIG.firebase);
+        fbAuth=firebase.auth();fbDb=firebase.firestore();
+        authBackend='firebase';fbReady=true;
+        fbAuth.onAuthStateChanged(u=>{
+          currentUser=u?{uid:u.uid,email:u.email,displayName:u.displayName||(localStorage.getItem('haven_name_'+u.uid)||'')}:null;
+          afterAuthChange();
+        });
+      }catch(e){console.warn('Firebase init failed, using local mode',e);authBackend='local';initLocalSession();}
+    }else{authBackend='local';initLocalSession();}
+  }
+  function initLocalSession(){
+    const sid=localStorage.getItem(LK.session);
+    if(sid){const users=localUsers();if(users[sid]){currentUser={uid:sid,email:users[sid].email,displayName:users[sid].name};}}
+    afterAuthChange();
+  }
+  // ---- sign up / in / out (return Promise) ----
+  function signUp(name,email,pwd){
+    email=email.trim().toLowerCase();
+    if(fbReady)return fbAuth.createUserWithEmailAndPassword(email,pwd).then(cred=>cred.user.updateProfile({displayName:name}).then(()=>{localStorage.setItem('haven_name_'+cred.user.uid,name);}));
+    return new Promise((res,rej)=>{
+      const users=localUsers();
+      if(users[email])return rej({code:'auth/email-already-in-use'});
+      if(pwd.length<6)return rej({code:'auth/weak-password'});
+      users[email]={name,email,pwd:btoa(unescape(encodeURIComponent(pwd))),createdAt:Date.now()};
+      saveLocalUsers(users);localStorage.setItem(LK.session,email);
+      currentUser={uid:email,email,displayName:name};saveLocalData(email,{addresses:[],orders:[]});afterAuthChange();res();
+    });
+  }
+  function signIn(email,pwd){
+    email=email.trim().toLowerCase();
+    if(fbReady)return fbAuth.signInWithEmailAndPassword(email,pwd);
+    return new Promise((res,rej)=>{
+      const users=localUsers();const u=users[email];
+      if(!u)return rej({code:'auth/user-not-found'});
+      if(u.pwd!==btoa(unescape(encodeURIComponent(pwd))))return rej({code:'auth/wrong-password'});
+      localStorage.setItem(LK.session,email);currentUser={uid:email,email:u.email,displayName:u.name};afterAuthChange();res();
+    });
+  }
+  function signOut(){
+    if(fbReady)return fbAuth.signOut();
+    return new Promise(res=>{localStorage.removeItem(LK.session);currentUser=null;userAddresses=[];userOrders=[];afterAuthChange();res();});
+  }
+  function updateProfileName(name){
+    if(!currentUser)return Promise.resolve();
+    if(fbReady)return fbAuth.currentUser.updateProfile({displayName:name});
+    return new Promise(res=>{const users=localUsers();if(users[currentUser.uid]){users[currentUser.uid].name=name;saveLocalUsers(users);}currentUser.displayName=name;res();});
+  }
+  function updatePassword(newPwd){
+    if(fbReady)return fbAuth.currentUser.updatePassword(newPwd);
+    return new Promise((res,rej)=>{if(newPwd.length<6)return rej({code:'auth/weak-password'});const users=localUsers();if(users[currentUser.uid]){users[currentUser.uid].pwd=btoa(unescape(encodeURIComponent(newPwd)));saveLocalUsers(users);}res();});
+  }
+  // ---- addresses & orders ----
+  async function loadUserData(){
+    userAddresses=[];userOrders=[];
+    if(!currentUser)return;
+    if(fbReady){
+      const snap=await fbDb.collection('users').doc(currentUser.uid).collection('addresses').orderBy('createdAt').get();
+      userAddresses=snap.docs.map(d=>({id:d.id,...d.data()}));
+      const osnap=await fbDb.collection('users').doc(currentUser.uid).collection('orders').orderBy('createdAt','desc').get();
+      userOrders=osnap.docs.map(d=>({id:d.id,...d.data()}));
+    }else{
+      const d=localData(currentUser.uid);userAddresses=d.addresses||[];userOrders=(d.orders||[]).slice().reverse();
+    }
+  }
+  async function saveAddress(addr){
+    if(!currentUser)return;
+    if(addr.isDefault)userAddresses.forEach(a=>a.isDefault=false);
+    if(fbReady){
+      const col=fbDb.collection('users').doc(currentUser.uid).collection('addresses');
+      if(addr.id){await col.doc(addr.id).set({...addr,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});}
+      else{addr.createdAt=firebase.firestore.FieldValue.serverTimestamp();const ref=await col.add(addr);addr.id=ref.id;}
+    }else{
+      const d=localData(currentUser.uid);
+      if(addr.id){const i=d.addresses.findIndex(a=>a.id===addr.id);if(i>-1)d.addresses[i]=addr;}else{addr.id='addr_'+Date.now();d.addresses.push(addr);}
+      saveLocalData(currentUser.uid,d);
+    }
+    await loadUserData();
+  }
+  async function deleteAddress(id){
+    if(!currentUser)return;
+    if(fbReady)await fbDb.collection('users').doc(currentUser.uid).collection('addresses').doc(id).delete();
+    else{const d=localData(currentUser.uid);d.addresses=d.addresses.filter(a=>a.id!==id);saveLocalData(currentUser.uid,d);}
+    await loadUserData();
+  }
+  async function saveOrder(order){
+    if(!currentUser)return null;
+    if(fbReady){
+      order.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+      const ref=await fbDb.collection('users').doc(currentUser.uid).collection('orders').add(order);
+      await loadUserData();return ref.id;
+    }else{
+      const d=localData(currentUser.uid);d.orders.push(order);saveLocalData(currentUser.uid,d);await loadUserData();return order.id;
+    }
+  }
+  function defaultAddress(){return userAddresses.find(a=>a.isDefault)||userAddresses[0]||null;}
+  return{init,signUp,signIn,signOut,updateProfileName,updatePassword,loadUserData,saveAddress,deleteAddress,saveOrder,defaultAddress,backend:()=>authBackend};
+})();
+
+// React to login state changes: update nav icon, account page, checkout autofill
+async function afterAuthChange(){
+  updateNavAuth();
+  if(currentUser){
+    await Auth.loadUserData();
+    renderAccount();
+    autofillCheckout();
+  }else{
+    renderAccount();
+  }
 }
+function updateNavAuth(){
+  const btn=document.getElementById('navAccountBtn');if(!btn)return;
+  if(currentUser){
+    btn.title='My Account';
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span style="position:absolute;bottom:2px;right:2px;width:7px;height:7px;border-radius:50%;background:var(--accent);border:1.5px solid var(--white)"></span>';
+  }else{
+    btn.title='Sign in';
+    btn.innerHTML='<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  }
+}
+// Clicking account icon: logged in -> account page, logged out -> auth modal
+function onAccountClick(){if(currentUser)go('account');else openAuth();}
+function authErrorText(code){
+  const m={'auth/email-already-in-use':'An account with this email already exists.','auth/weak-password':'Password should be at least 6 characters.','auth/user-not-found':'No account found with this email.','auth/wrong-password':'Incorrect email or password.','auth/invalid-email':'Please enter a valid email address.','auth/too-many-requests':'Too many attempts. Please try again later.','auth/network-request-failed':'Network error. Please check your connection.'};
+  return m[code]||'Authentication failed. Please try again.';
+}
+
+// ===== Auth (UI) =====
+function openAuth(mode){
+  authMode=mode||'login';
+  renderAuthMode();
+  document.getElementById('authError').style.display='none';
+  document.getElementById('authBackendNote').textContent=Auth.backend()==='firebase'?'Secured by Firebase':'Demo mode: account saved in this browser only (connect Firebase for cross-device)';
+  document.getElementById('authModal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeAuth(){document.getElementById('authModal').classList.remove('open');document.body.style.overflow=''}
+function renderAuthMode(){
+  document.getElementById('authError').style.display='none';
+  const btn=document.getElementById('authBtn');btn.disabled=false;
+  if(authMode==='signup'){
+    document.getElementById('authTitle').textContent='Create account';document.getElementById('authSub').textContent='Join Haven for exclusive deals';
+    document.getElementById('nameGroup').style.display='block';btn.textContent='Sign Up';
+    document.getElementById('authSwitch').innerHTML='Already have an account? <a onclick="authMode=\'login\';renderAuthMode()">Sign in</a>';
+  }else{
+    document.getElementById('authTitle').textContent='Welcome back';document.getElementById('authSub').textContent='Sign in to your account';
+    document.getElementById('nameGroup').style.display='none';btn.textContent='Sign In';
+    document.getElementById('authSwitch').innerHTML='Don\'t have an account? <a onclick="authMode=\'signup\';renderAuthMode()">Sign up</a>';
+  }
+}
+function toggleAuth(){authMode=authMode==='login'?'signup':'login';renderAuthMode();}
+async function submitAuth(){
+  const email=document.getElementById('authEmail').value.trim();
+  const pwd=document.getElementById('authPwd').value;
+  const name=document.getElementById('authName').value.trim();
+  const errEl=document.getElementById('authError'),btn=document.getElementById('authBtn');
+  errEl.style.display='none';
+  if(authMode==='signup'&&!name){errEl.textContent='Please enter your full name.';errEl.style.display='block';return;}
+  if(!email||!pwd){errEl.textContent='Please enter email and password.';errEl.style.display='block';return;}
+  btn.disabled=true;btn.textContent=authMode==='signup'?'Creating account...':'Signing in...';
+  try{
+    if(authMode==='signup')await Auth.signUp(name,email,pwd);else await Auth.signIn(email,pwd);
+    closeAuth();
+    showToast(authMode==='signup'?'Welcome to Haven, '+name.split(' ')[0]+'!':'Signed in successfully');
+    document.getElementById('authEmail').value='';document.getElementById('authPwd').value='';document.getElementById('authName').value='';
+  }catch(e){
+    errEl.textContent=authErrorText(e.code||e.message);errEl.style.display='block';
+    btn.disabled=false;btn.textContent=authMode==='signup'?'Sign Up':'Sign In';
+  }
+}
+async function doSignOut(){if(!confirm('Sign out of your account?'))return;await Auth.signOut();showToast('Signed out');go('home');}
 document.getElementById('authModal').addEventListener('click',function(e){if(e.target===this)closeAuth()});
 
 // ===== Toast =====
@@ -723,8 +1090,104 @@ function showLegal(key){
   go('legal');
 }
 
+// ===== Account Center =====
+let editingAddrId=null;
+function switchAcctTab(tab){
+  document.querySelectorAll('.acct-tab[data-tab]').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  document.querySelectorAll('.acct-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
+  renderAccount();
+}
+function fmtDate(ts){
+  if(!ts)return'';
+  try{
+    if(ts&&ts.toDate)return ts.toDate().toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+    const d=new Date(ts.seconds?ts.seconds*1000:ts);return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+  }catch(e){return'';}
+}
+function orderCard(o){
+  const chips=(o.items||[]).slice(0,4).map(i=>`<div class="order-item-chip"><img src="${i.img}" alt=""><span>${i.name} ×${i.qty}</span></div>`).join('');
+  return `<div class="order-card">
+    <div class="order-card-top"><span class="order-id">${o.id}</span><span class="order-date">${fmtDate(o.createdAt)}</span><span class="order-status">${o.status||'Processing'}</span></div>
+    <div class="order-items">${chips}</div>
+    <div class="order-total">Total <b>$${Number(o.total).toFixed(2)}</b></div>
+  </div>`;
+}
+function renderAccount(){
+  const guest=document.getElementById('acctGuest'),main=document.getElementById('acctMain');
+  if(!guest)return;
+  if(!currentUser){guest.style.display='block';main.style.display='none';return;}
+  guest.style.display='none';main.style.display='grid';
+  const initials=(currentUser.displayName||currentUser.email||'U').charAt(0).toUpperCase();
+  document.getElementById('acctAvatar').textContent=initials;
+  document.getElementById('acctName').textContent=currentUser.displayName||'Customer';
+  document.getElementById('acctEmail').textContent=currentUser.email;
+  document.getElementById('ovName').textContent=(currentUser.displayName||'there').split(' ')[0];
+  document.getElementById('ovBackend').textContent=Auth.backend()==='firebase'?'Signed in with your secure account':'Demo mode — data is stored in this browser only';
+  document.getElementById('setName').value=currentUser.displayName||'';
+  document.getElementById('setEmail').value=currentUser.email;
+  // stats
+  const spent=userOrders.reduce((s,o)=>s+Number(o.total||0),0);
+  document.getElementById('statOrders').textContent=userOrders.length;
+  document.getElementById('statSpent').textContent='$'+spent.toFixed(0);
+  document.getElementById('statAddr').textContent=userAddresses.length;
+  // overview recent
+  document.getElementById('ovRecentOrders').innerHTML=userOrders.length?userOrders.slice(0,3).map(orderCard).join(''):'<div class="acct-empty"><h3>No orders yet</h3><p>When you place an order, it will appear here.</p><p style="margin-top:14px"><button class="btn btn-primary" onclick="go(\'shop\')">Start Shopping</button></p></div>';
+  // orders tab
+  document.getElementById('ordersList').innerHTML=userOrders.length?userOrders.map(orderCard).join(''):'<div class="acct-empty"><h3>No orders yet</h3><p>Your order history is empty.</p></div>';
+  // addresses tab
+  const al=document.getElementById('addressList');
+  if(!userAddresses.length){al.innerHTML='<div class="acct-empty"><h3>No saved addresses</h3><p>Add an address to speed up checkout.</p></div>';}
+  else{
+    al.innerHTML=userAddresses.map(a=>`<div class="addr-card ${a.isDefault?'default':''}">${a.isDefault?'<span class="addr-default-tag">Default</span>':''}<h4>${a.firstName} ${a.lastName}</h4><p>${a.line}<br>${a.city}, ${a.state} ${a.zip}<br>${a.phone||''}</p><div class="addr-actions">${!a.isDefault?`<button class="btn btn-outline" style="padding:5px 12px;font-size:.78rem" onclick="setDefaultAddr('${a.id}')">Set Default</button>`:''}<button class="btn btn-outline" style="padding:5px 12px;font-size:.78rem" onclick="editAddress('${a.id}')">Edit</button><button class="btn btn-danger" style="padding:5px 12px;font-size:.78rem" onclick="removeAddress('${a.id}')">Delete</button></div></div>`).join('');
+  }
+}
+function editAddress(id){
+  editingAddrId=id||null;
+  const a=id?userAddresses.find(x=>x.id===id):null;
+  document.getElementById('addrModalTitle').textContent=a?'Edit Address':'Add Address';
+  document.getElementById('adFirstName').value=a?a.firstName:'';
+  document.getElementById('adLastName').value=a?a.lastName:'';
+  document.getElementById('adLine').value=a?a.line:'';
+  document.getElementById('adCity').value=a?a.city:'';
+  document.getElementById('adZip').value=a?a.zip:'';
+  document.getElementById('adState').value=a?a.state:'';
+  document.getElementById('adPhone').value=a?a.phone:'';
+  document.getElementById('adDefault').checked=a?!!a.isDefault:userAddresses.length===0;
+  document.getElementById('addrModal').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeAddrModal(){document.getElementById('addrModal').classList.remove('open');document.body.style.overflow=''}
+async function saveAddrForm(){
+  const addr={
+    id:editingAddrId||undefined,
+    firstName:document.getElementById('adFirstName').value.trim(),
+    lastName:document.getElementById('adLastName').value.trim(),
+    line:document.getElementById('adLine').value.trim(),
+    city:document.getElementById('adCity').value.trim(),
+    zip:document.getElementById('adZip').value.trim(),
+    state:document.getElementById('adState').value,
+    phone:document.getElementById('adPhone').value.trim(),
+    isDefault:document.getElementById('adDefault').checked
+  };
+  if(!addr.firstName||!addr.lastName||!addr.line||!addr.city||!addr.zip||!addr.state){showToast('Please complete all required address fields');return;}
+  await Auth.saveAddress(addr);closeAddrModal();renderAccount();autofillCheckout();showToast('Address saved');
+}
+async function setDefaultAddr(id){const a=userAddresses.find(x=>x.id===id);if(a){a.isDefault=true;await Auth.saveAddress(a);renderAccount();showToast('Default address updated');}}
+async function removeAddress(id){if(!confirm('Delete this address?'))return;await Auth.deleteAddress(id);renderAccount();showToast('Address deleted');}
+async function saveProfile(){
+  const name=document.getElementById('setName').value.trim();
+  if(!name){showToast('Name cannot be empty');return;}
+  await Auth.updateProfileName(name);showToast('Profile updated');renderAccount();
+}
+async function savePassword(){
+  const pwd=document.getElementById('setPwd').value;
+  if(pwd.length<6){showToast('Password must be at least 6 characters');return;}
+  try{await Auth.updatePassword(pwd);document.getElementById('setPwd').value='';showToast('Password updated');}catch(e){showToast(authErrorText(e.code||e.message));}
+}
+document.getElementById('addrModal').addEventListener('click',function(e){if(e.target===this)closeAddrModal()});
+
 // ===== Init =====
 async function init(){
+  Auth.init();              // initialize user system (Firebase or local)
   try{
     const res=await fetch('products.json?t='+Date.now());
     products=await res.json();
